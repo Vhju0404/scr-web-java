@@ -1,0 +1,101 @@
+[
+  {
+    "id": "JS00005",
+    "name": "JS00005",
+    "running": true,
+    "inGameStatus": "Chưa vào game",
+    "plan": "VIP Cloud",
+    "expiresAt": 1802787072261,
+    "width": 240,
+    "height": 320,
+    "fps": 30,
+    "gameInfo": {
+      "name": "DragonBoy 2.5.0",
+      "vendor": "Team",
+      "fileName": "Ngọc Rồng Online.jar",
+      "fileSize": 1375172,
+      "uploadedAt": "23:39:03 18/10/2026",
+      "jarPath": "C:\\Users\\hieun\\.gemini\\antigravity\\scratch\\treo-game-java\\presets\\NgocRongOnline-2.5.0.jar",
+      "presetId": "nro-250"
+    },
+    "automation": {
+      "autoLoginEnabled": false,
+      "macros": [],
+      "periodicKey": {
+        "enabled": false,
+        "keyCode": -5,
+        "intervalSec": 15
+      },
+      "scheduledRestart": {
+        "enabled": false,
+        "everyHours": 6
+      }
+    }
+  },
+  {
+    "id": "JS00006",
+    "name": "aa",
+    "running": true,
+    "inGameStatus": "Chưa vào game",
+    "plan": "VIP Cloud",
+    "expiresAt": 1802879623795,
+    "width": 240,
+    "height": 320,
+    "fps": 12,
+    "gameInfo": {
+      "name": "DragonBoy 2.5.0",
+      "vendor": "Team",
+      "fileName": "Ngọc Rồng Online.jar",
+      "fileSize": 1375172,
+      "uploadedAt": "23:53:43 18/10/2026",
+      "jarPath": "C:\\Users\\hieun\\.gemini\\antigravity\\scratch\\treo-game-java\\presets\\NgocRongOnline-2.5.0.jar",
+      "presetId": "nro-250"
+    },
+    "automation": {
+      "autoLoginEnabled": false,
+      "macros": [],
+      "periodicKey": {
+        "enabled": false,
+        "keyCode": -5,
+        "intervalSec": 15
+      },
+      "scheduledRestart": {
+        "enabled": false,
+        "everyHours": 6
+      }
+    }
+  },
+  {
+    "id": "JS00007",
+    "name": "JS00007",
+    "running": true,
+    "inGameStatus": "Chưa vào game",
+    "plan": "Dùng thử",
+    "expiresAt": 1792426250511,
+    "width": 240,
+    "height": 320,
+    "fps": 12,
+    "gameInfo": {
+      "name": "DragonBoy 2.5.0",
+      "vendor": "Team",
+      "fileName": "Ngọc Rồng Online.jar",
+      "fileSize": 1375172,
+      "uploadedAt": "00:10:50 19/10/2026",
+      "jarPath": "C:\\Users\\hieun\\.gemini\\antigravity\\scratch\\treo-game-java\\presets\\NgocRongOnline-2.5.0.jar",
+      "presetId": "nro-250"
+    },
+    "automation": {
+      "autoLoginEnabled": false,
+      "macros": [],
+      "periodicKey": {
+        "enabled": false,
+        "keyCode": -5,
+        "intervalSec": 15
+      },
+      "scheduledRestart": {
+        "enabled": false,
+        "everyHours": 6
+      }
+    }
+  }
+]
