@@ -1,0 +1,714 @@
+/* ==========================================================================
+   THEME "ĐÊM TUYẾT" — nạp sau style.css, ghi đè màu / chữ / thành phần.
+   Nền xanh đêm, nhấn cam hổ phách, nút phẳng, bỏ glow neon.
+   ========================================================================== */
+
+:root,
+[data-theme="dark"] {
+  --bg-base: #0a0f1c;
+  --surface-card: #111a2c;
+  --surface-card-hover: #15203a;
+  --surface-elevated: #18233d;
+  --surface-input: #0d1424;
+  --surface-topbar: rgba(10, 15, 28, 0.78);
+  --border-subtle: rgba(150, 172, 214, 0.12);
+  --border-strong: rgba(150, 172, 214, 0.24);
+  --text-primary: #eef2fb;
+  --text-secondary: #9ba7c3;
+  --text-muted: #67738f;
+  --accent: #ffa63d;
+  --accent-hover: #ff9420;
+  --accent-ink: #1f1405;
+  --accent-Soft: rgba(255, 166, 61, 0.13);
+  --accent-glow: rgba(255, 166, 61, 0.22);
+  --ok: #46d99b;
+  --ok-soft: rgba(70, 217, 155, 0.14);
+  --sync-color: #79b0ff;
+  --sync-soft: rgba(121, 176, 255, 0.15);
+  --danger: #ff6170;
+  --danger-soft: rgba(255, 97, 112, 0.14);
+  --warning: #ffd36b;
+  --shadow-card: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  --keypad-btn-bg: #16203a;
+  --keypad-btn-border: rgba(150, 172, 214, 0.14);
+  --keypad-btn-active: #ffa63d;
+  --overlay-color: rgba(8, 12, 24, var(--bg-dim, 0.35));
+  --radius: 14px;
+  --font-display: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+}
+
+[data-theme="light"] {
+  --bg-base: #eaf0f8;
+  --surface-card: #ffffff;
+  --surface-card-hover: #f7f9fd;
+  --surface-elevated: #ffffff;
+  --surface-input: #f1f5fb;
+  --surface-topbar: rgba(255, 255, 255, 0.82);
+  --border-subtle: rgba(30, 50, 90, 0.1);
+  --border-strong: rgba(30, 50, 90, 0.2);
+  --text-primary: #111a2e;
+  --text-secondary: #4d5a75;
+  --text-muted: #7a869f;
+  --accent: #e57a0e;
+  --accent-hover: #cf6a04;
+  --accent-ink: #ffffff;
+  --accent-Soft: rgba(229, 122, 14, 0.11);
+  --accent-glow: rgba(229, 122, 14, 0.2);
+  --ok: #16a36b;
+  --ok-soft: rgba(22, 163, 107, 0.12);
+  --sync-color: #2d6fe0;
+  --sync-soft: rgba(45, 111, 224, 0.12);
+  --danger: #dc3545;
+  --danger-soft: rgba(220, 53, 69, 0.1);
+  --warning: #b7791f;
+  --shadow-card: 0 10px 28px -14px rgba(20, 40, 80, 0.28);
+  --keypad-btn-bg: #f1f5fb;
+  --keypad-btn-border: rgba(30, 50, 90, 0.12);
+  --keypad-btn-active: #e57a0e;
+  --overlay-color: rgba(234, 240, 248, var(--bg-dim, 0.25));
+}
+
+html,
+body {
+  font-family: 'Nunito', 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.005em;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Icon SVG dùng chung (thay emoji) */
+.ico {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -3px;
+}
+
+.ico-sm {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+}
+
+/* ---------- Nền: đêm tuyết mặc định ---------- */
+[data-bg="winter-night"] .wallpaper-layer {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(121, 176, 255, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 110%, rgba(255, 166, 61, 0.12), transparent 70%),
+    linear-gradient(180deg, #0b1324 0%, #0a0f1c 55%, #080c17 100%);
+}
+
+[data-theme="light"][data-bg="winter-night"] .wallpaper-layer {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(121, 176, 255, 0.35), transparent 70%),
+    linear-gradient(180deg, #dde8f6 0%, #eaf0f8 60%, #f3f6fb 100%);
+}
+
+.preview-winter-night {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(121, 176, 255, 0.45), transparent 70%),
+    linear-gradient(180deg, #0b1324, #080c17);
+  position: relative;
+}
+
+.preview-winter-night::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 60% 20%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 80% 60%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 35% 75%, #fff 50%, transparent 51%);
+  opacity: 0.85;
+}
+
+/* Lớp tuyết rơi: nằm trên nền, dưới mọi nội dung (không đè lên màn hình game) */
+#snowCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ---------- Thanh trên cùng ---------- */
+.topbar,
+.subbar {
+  background: var(--surface-topbar);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+}
+
+.topbar {
+  padding: 10px 18px;
+}
+
+.brand-logo {
+  gap: 10px;
+}
+
+.brand-emblem {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.brand-emblem .ico {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.2;
+}
+
+.brand-emblem-dot {
+  background: var(--ok);
+  border-color: var(--bg-base);
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.brand-title em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.brand-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.stat-pill,
+.switch-pill {
+  background: transparent;
+  border-color: var(--border-subtle);
+  font-weight: 700;
+}
+
+.switch-pill.active {
+  background: var(--accent-Soft);
+  border-color: rgba(255, 166, 61, 0.35);
+}
+
+.switch-pill.active .switch-track {
+  background: var(--accent);
+}
+
+.switch-pill.active .switch-state {
+  color: var(--accent);
+}
+
+.status-dot.running {
+  background: var(--ok);
+  box-shadow: 0 0 0 0 rgba(70, 217, 155, 0.5);
+  animation: dot-pulse 2.4s ease-out infinite;
+}
+
+.status-dot.stopped {
+  background: var(--danger);
+}
+
+@keyframes dot-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(70, 217, 155, 0.45); }
+  70% { box-shadow: 0 0 0 6px rgba(70, 217, 155, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(70, 217, 155, 0); }
+}
+
+.view-size-group {
+  background: transparent;
+  border-color: var(--border-subtle);
+  border-radius: 10px;
+}
+
+.size-btn {
+  border-radius: 7px;
+  font-weight: 700;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.size-btn.active {
+  background: var(--surface-elevated);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+/* ---------- Nút ---------- */
+.btn-tool,
+.btn-theme-switch,
+.btn-inspector-toggle,
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  font-weight: 700;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+[data-theme="light"] .btn-tool,
+[data-theme="light"] .btn-theme-switch,
+[data-theme="light"] .btn-inspector-toggle,
+[data-theme="light"] .btn-ghost {
+  background: #fff;
+}
+
+.btn-tool:hover,
+.btn-theme-switch:hover,
+.btn-inspector-toggle:hover,
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--border-strong);
+}
+
+.btn-tool.active-sharpen {
+  border-color: var(--border-subtle);
+}
+
+.btn-inspector-toggle.active {
+  background: var(--accent-Soft);
+  border-color: rgba(255, 166, 61, 0.35);
+  color: var(--accent);
+}
+
+.btn-primary-glow,
+.btn-emerald {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary-glow:hover,
+.btn-emerald:hover {
+  background: var(--accent-hover);
+  filter: none;
+}
+
+.btn-primary-glow:active,
+.btn-emerald:active {
+  transform: translateY(1px);
+}
+
+.btn-primary-glow {
+  padding: 7px 14px;
+}
+
+.billing-btn strong {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Lệnh nhanh & danh sách tab ---------- */
+.quick-cmd-label {
+  color: var(--text-muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+
+.quick-chip {
+  border-radius: 999px;
+  padding: 3px 11px;
+  background: transparent;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.quick-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-Soft);
+}
+
+.quick-add-chip-btn {
+  border-radius: 999px;
+}
+
+.slot-mini-pill {
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 700;
+}
+
+.slot-mini-pill.active {
+  background: var(--accent-Soft);
+  color: var(--text-primary);
+  border-color: rgba(255, 166, 61, 0.45);
+}
+
+/* ---------- Thẻ máy treo ---------- */
+.device-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.device-card:hover {
+  border-color: var(--border-strong);
+}
+
+.device-card.focused {
+  border-color: rgba(255, 166, 61, 0.55);
+  box-shadow: 0 0 0 1px rgba(255, 166, 61, 0.35), var(--shadow-card);
+}
+
+.device-card-header {
+  background: transparent;
+  padding: 10px 12px 8px;
+}
+
+.device-slot-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.device-game-pill {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0 8px;
+  font-weight: 700;
+}
+
+.card-icon-btn,
+.q-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.card-icon-btn {
+  padding: 5px 6px;
+}
+
+.q-btn {
+  font-size: 11.5px;
+  padding: 4px 8px;
+}
+
+.card-icon-btn:hover,
+.q-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .card-icon-btn:hover,
+[data-theme="light"] .q-btn:hover {
+  background: rgba(20, 40, 80, 0.06);
+}
+
+.card-icon-btn.active,
+.card-icon-btn.settings-btn.active {
+  background: var(--accent-Soft);
+  color: var(--accent);
+  border-color: transparent;
+}
+
+.card-icon-btn.delete-btn:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.q-btn.power-on {
+  color: var(--danger);
+  border-color: transparent;
+  background: var(--danger-soft);
+}
+
+.q-btn.power-off {
+  color: var(--ok);
+  border-color: transparent;
+  background: var(--ok-soft);
+}
+
+.q-btn.active-toggle {
+  background: var(--accent-Soft);
+  color: var(--accent);
+}
+
+.device-quick-strip {
+  border-bottom: none;
+  padding: 0 10px 8px;
+}
+
+.fps-badge {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-family: inherit;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.device-canvas {
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 10px 24px -10px rgba(0, 0, 0, 0.7);
+}
+
+.k-btn {
+  border-radius: 10px;
+  font-weight: 800;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.k-btn:hover {
+  border-color: var(--border-strong);
+}
+
+.k-btn:active,
+.k-btn.pressed {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.add-slot-card {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 18px;
+  background: transparent;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.add-slot-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-Soft);
+}
+
+.add-slot-plus {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.add-slot-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* ---------- Bảng cài đặt tab ---------- */
+.inspector-panel {
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+}
+
+.insp-tab {
+  font-weight: 800;
+  border-bottom-width: 2px;
+}
+
+.insp-tab.active {
+  background: transparent;
+}
+
+.insp-card {
+  border-radius: 14px;
+  background: var(--surface-input);
+}
+
+.insp-card-title {
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.text-emerald {
+  color: var(--ok);
+}
+
+.plan-pill {
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+
+.mode-tab {
+  border-radius: 10px;
+}
+
+.input-field,
+.select-field {
+  border-radius: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-field:focus,
+.select-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-Soft);
+  outline: none;
+}
+
+/* ---------- Hộp thoại & thông báo ---------- */
+.modal-backdrop {
+  background: rgba(5, 9, 18, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fade-in 0.18s ease;
+}
+
+.modal-dialog {
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  animation: pop-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.toast-item {
+  border-left: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  animation: toast-in 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.plan-banner {
+  border-color: rgba(255, 166, 61, 0.4);
+  border-radius: 14px;
+  background: var(--accent-Soft);
+}
+
+.plan-banner strong {
+  color: var(--accent);
+}
+
+/* Billing */
+.billing-product {
+  border-radius: 14px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.billing-product:hover {
+  transform: translateY(-2px);
+}
+
+.billing-product .bp-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+.billing-product .bp-price {
+  font-size: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Lớp phủ trên màn hình game (máy tắt / đang ẩn hình) */
+.device-off-overlay,
+.device-hidden-stream-overlay {
+  gap: 8px;
+}
+
+.overlay-ico {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.overlay-ico .ico {
+  width: 22px;
+  height: 22px;
+}
+
+.overlay-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.add-slot-plus .ico {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.5;
+}
+
+.add-slot-desc {
+  color: var(--text-muted);
+}
+
+.card-icon-btn .ico {
+  width: 15px;
+  height: 15px;
+}
+
+/* Nền chỉ tô ở <html>; <body> trong suốt để lớp hình nền (z-index -2) và tuyết (-1) không bị che */
+html {
+  background-color: var(--bg-base);
+}
+
+body,
+body.admin-page {
+  background-color: transparent;
+}
+
+/* Màn hình vừa: thanh trên cùng chỉ hiện icon để không xuống nhiều dòng */
+@media (max-width: 1280px) {
+  .topbar-right .btn-label,
+  .group-label,
+  .account-btn .plan-pill,
+  .brand-subtitle {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 6px;
+  }
+}

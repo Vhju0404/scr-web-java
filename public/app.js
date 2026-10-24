@@ -14,10 +14,53 @@ const SHARPNESS_MODES = [
 
 const DEFAULT_QUICK_CHIPS = ['ak', 'tdlt', 'khu 1', 'ts', 'khu 2', 'nhặt đồ'];
 
+// Icon SVG nét mảnh (thay emoji trên nút), dùng: icon('power')
+const ICON_PATHS = {
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  expand: '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>',
+  camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
+  sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  power: '<path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>',
+  play: '<path d="m7 4 13 8-13 8z"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff: '<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 8 10 8a17.5 17.5 0 0 1-2.16 3.19M6.6 6.6A17.4 17.4 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6M2 2l20 20"/>',
+  keyboard: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>'
+};
+
+function powerLabel(isRunning) {
+  return isRunning ? `${icon('power', 'ico ico-sm')} Tắt` : `${icon('play', 'ico ico-sm')} Bật`;
+}
+
+function streamLabel(hidden) {
+  return hidden ? `${icon('eye', 'ico ico-sm')} Hiện` : `${icon('eyeOff', 'ico ico-sm')} Ẩn hình`;
+}
+
+function icon(name, cls = 'ico') {
+  return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
+}
+
+// Hết phiên đăng nhập -> quay về trang đăng nhập
+const nativeFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const res = await nativeFetch(...args);
+  if (res.status === 401) location.replace('/login.html');
+  return res;
+};
+
 const state = {
+  me: null,
+  config: { canUpload: false, contact: '', billing: false },
+  billing: null,
+  billingTopupOpen: false,
   slots: [],
   presets: [],
-  focusedSlotId: 'JS00005',
+  focusedSlotId: '',
   inspectorOpen: true,
   ecoMode: localStorage.getItem('j2me_eco_mode') !== 'false',
   syncAllMode: false,
@@ -64,13 +107,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   initQuickChipsBar();
   initInspectorControls();
   initModals();
+  initAccountModal();
+  initBillingModal();
   initGlobalKeyboard();
+
+  // Điện thoại: bảng cài đặt tab là tấm trượt che màn hình -> mặc định đóng, bấm ⚙ mới mở
+  if (window.matchMedia('(max-width: 640px)').matches) {
+    state.inspectorOpen = false;
+    updateInspectorVisibility();
+  }
 
   await fetchBootstrap();
   connectWebSocket();
 
   // Periodic remaining time & FPS HUD refresh
-  setInterval(updateInspectorRemainingTime, 30000);
+  setInterval(() => {
+    updateInspectorRemainingTime();
+    renderAccount();
+  }, 30000);
   setInterval(updateAllFpsBadges, 1000);
 });
 
@@ -78,8 +132,12 @@ async function fetchBootstrap() {
   try {
     const res = await fetch('/api/bootstrap');
     const data = await res.json();
+    state.me = data.me || null;
+    state.config = data.config || { canUpload: false, contact: '' };
+    document.body.classList.toggle('no-upload', !state.config.canUpload);
     state.slots = data.slots || [];
     state.presets = data.presets || [];
+    renderAccount();
 
     for (const s of state.slots) {
       state.syncedSlotIds.add(s.id);
@@ -108,6 +166,7 @@ function connectWebSocket() {
   state.ws = ws;
 
   ws.onopen = () => {
+    sendVisibility();
     sendWs({
       type: 'focus',
       slotId: state.focusedSlotId,
@@ -181,15 +240,41 @@ function connectWebSocket() {
         if (msg.message) showToast(msg.message);
         break;
       }
+      case 'account': {
+        if (msg.me) {
+          state.me = msg.me;
+          renderAccount();
+        }
+        break;
+      }
       default:
         break;
     }
   };
 
   ws.onclose = () => {
-    setTimeout(connectWebSocket, 2000);
+    // fetch tự chuyển về trang đăng nhập nếu phiên đã hết hạn
+    setTimeout(async () => {
+      try {
+        const res = await fetch('/api/me');
+        if (res.status === 401) return;
+      } catch (e) {}
+      connectWebSocket();
+    }, 2000);
   };
 }
+
+// Báo server tab nào không cần hình (đang "Ẩn hình", hoặc cả trang bị ẩn khi bật Siêu nhẹ)
+// để emulator ngừng mã hóa khung hình cho các tab đó -> nhẹ CPU, tab đang xem mượt hơn
+function sendVisibility() {
+  const hiddenSlots = [];
+  for (const [slotId, view] of state.slotViews.entries()) {
+    if (view.streamHidden) hiddenSlots.push(slotId);
+  }
+  sendWs({ type: 'visibility', pageHidden: document.hidden && state.ecoMode, hiddenSlots });
+}
+
+document.addEventListener('visibilitychange', sendVisibility);
 
 function sendWs(payload) {
   if (state.ws && state.ws.readyState === WebSocket.OPEN) {
@@ -297,9 +382,9 @@ function renderAllDeviceCards() {
   const addCard = document.createElement('div');
   addCard.className = 'add-slot-card';
   addCard.innerHTML = `
-    <div class="add-slot-plus">＋</div>
-    <div class="add-slot-title">Mở thêm Tab mới</div>
-    <div class="add-slot-desc">Chạy song song thêm nick hoặc tải file .JAR của bạn lên VPS</div>
+    <div class="add-slot-plus">${icon('plus')}</div>
+    <div class="add-slot-title">Thêm tab treo</div>
+    <div class="add-slot-desc">Chạy thêm một nick nữa, song song 24/7</div>
   `;
   addCard.addEventListener('click', () => openNewTabModal());
   grid.appendChild(addCard);
@@ -334,19 +419,11 @@ function buildDeviceCard(slot) {
         <span class="device-game-pill" data-role="game">${escapeHtml(gameName)}</span>
       </div>
       <div class="device-header-actions">
-        <button class="card-icon-btn sync-badge-btn ${isSynced ? 'active' : ''}" data-action="toggle-slot-sync" title="Bật/tắt nhận lệnh Đồng bộ đa tab cho ${slot.id}">
-          🔗
-        </button>
-        <button class="card-icon-btn" data-action="spotlight" title="Phóng to 2x HD riêng tab này">
-          ⛶
-        </button>
-        <button class="card-icon-btn" data-action="screenshot" title="Chụp ảnh màn hình tab này (PNG nét căng)">
-          📸
-        </button>
-        <button class="card-icon-btn settings-btn ${slot.id === state.focusedSlotId && state.inspectorOpen ? 'active' : ''}" data-action="open-settings" title="Mở cài đặt riêng cho tab ${slot.id}">
-          ⚙ Cài đặt
-        </button>
-        <button class="card-icon-btn delete-btn" data-action="delete-slot" title="Đóng / Xóa tab này">✕</button>
+        <button class="card-icon-btn sync-badge-btn ${isSynced ? 'active' : ''}" data-action="toggle-slot-sync" title="Bật/tắt nhận lệnh Đồng bộ đa tab cho ${slot.id}">${icon('link')}</button>
+        <button class="card-icon-btn" data-action="spotlight" title="Phóng to tab này">${icon('expand')}</button>
+        <button class="card-icon-btn" data-action="screenshot" title="Chụp ảnh màn hình tab này">${icon('camera')}</button>
+        <button class="card-icon-btn settings-btn ${slot.id === state.focusedSlotId && state.inspectorOpen ? 'active' : ''}" data-action="open-settings" title="Mở cài đặt riêng cho tab ${slot.id}">${icon('sliders')}</button>
+        <button class="card-icon-btn delete-btn" data-action="delete-slot" title="Đóng / Xóa tab này">${icon('x')}</button>
       </div>
     </div>
 
@@ -354,14 +431,12 @@ function buildDeviceCard(slot) {
     <div class="device-quick-strip">
       <div class="quick-strip-btns">
         <button class="q-btn ${isRunning ? 'power-on' : 'power-off'}" data-action="toggle-power">
-          ${isRunning ? '⏹ Tắt' : '▶ Bật'}
-        </button>
-        <button class="q-btn" data-action="quick-upload" title="Tải file .jar từ máy lên tab này">📤 .jar</button>
-        <button class="q-btn" data-action="restart" title="Khởi động lại game trên tab này">↻ Reset</button>
+${powerLabel(isRunning)}</button>
+        <button class="q-btn upload-only" data-action="quick-upload" title="Tải file .jar từ máy lên tab này">${icon('upload', 'ico ico-sm')} .jar</button>
+        <button class="q-btn" data-action="restart" title="Khởi động lại game trên tab này">${icon('refresh', 'ico ico-sm')} Reset</button>
         <button class="q-btn ${streamHidden ? 'active-toggle' : ''}" data-action="toggle-stream-hide" title="Ẩn hình để treo ngầm 0% CPU trình duyệt (Game vẫn chạy 100% trên VPS)">
-          👁 ${streamHidden ? 'Hiện' : 'Ẩn hình'}
-        </button>
-        <button class="q-btn" data-action="toggle-keypad" title="Ẩn/Hiện phím bấm của tab này">⌨ Phím</button>
+${streamLabel(streamHidden)}</button>
+        <button class="q-btn" data-action="toggle-keypad" title="Ẩn/Hiện phím bấm của tab này">${icon('keyboard', 'ico ico-sm')} Phím</button>
       </div>
       <div class="device-hud-right">
         <span class="fps-badge" data-role="fps-badge">${isRunning ? 'LIVE' : 'OFF'}</span>
@@ -375,22 +450,22 @@ function buildDeviceCard(slot) {
       <canvas class="device-canvas" width="${logicalW * 2}" height="${logicalH * 2}"></canvas>
 
       <div class="device-off-overlay ${isRunning ? 'hidden' : ''}" data-role="off-overlay">
-        <div style="font-size:24px;">💤</div>
+        <div class="overlay-ico">${icon('power')}</div>
         <div><strong>Máy treo đang tắt</strong></div>
-        <button class="btn-emerald" data-action="start-now">▶ Bật máy ngay</button>
+        <button class="btn-emerald" data-action="start-now">Bật máy</button>
       </div>
 
       <div class="device-hidden-stream-overlay ${streamHidden && isRunning ? '' : 'hidden'}" data-role="hidden-stream-overlay">
-        <div style="font-size:24px;">⚡</div>
+        <div class="overlay-ico">${icon('eyeOff')}</div>
         <div><strong>Đang treo ngầm trên VPS</strong></div>
-        <div style="font-size:11px;color:#94a3b8;">Đã tắt vẽ hình để tiết kiệm 100% CPU/GPU trình duyệt</div>
-        <button class="btn-emerald" data-action="resume-stream">👁 Hiện lại màn hình</button>
+        <div class="overlay-sub">Game vẫn chạy, chỉ tắt hình để nhẹ máy</div>
+        <button class="btn-emerald" data-action="resume-stream">Hiện lại màn hình</button>
       </div>
     </div>
 
     <!-- Auto-appearing Native J2ME TextBox Input Bar -->
     <div class="device-textbox-bar ${slot.activeTextBox?.active ? '' : 'hidden'}" data-role="textbox-bar">
-      <div class="tb-label" data-role="textbox-title">⌨ Nhập vào game:</div>
+      <div class="tb-label" data-role="textbox-title">Nhập vào game:</div>
       <div class="tb-row">
         <input type="text" class="input-field" data-role="textbox-input" placeholder="Nhập tài khoản / mật khẩu..." />
         <button class="btn-emerald" data-action="textbox-ok">OK</button>
@@ -528,8 +603,9 @@ function wireDeviceCardEvents(slotId, view) {
       if (hideOverlay) hideOverlay.classList.toggle('hidden', !view.streamHidden);
       if (hideBtn) {
         hideBtn.classList.toggle('active-toggle', view.streamHidden);
-        hideBtn.textContent = `👁 ${view.streamHidden ? 'Hiện' : 'Ẩn hình'}`;
+        hideBtn.innerHTML = streamLabel(view.streamHidden);
       }
+      sendVisibility();
       if (!view.streamHidden) {
         sendWs({ type: 'focus', slotId, ecoMode: state.ecoMode });
       }
@@ -697,7 +773,7 @@ function updateSingleDeviceCardUI(slot) {
   const powerBtn = card.querySelector('[data-action="toggle-power"]');
   if (powerBtn) {
     powerBtn.className = `q-btn ${isRunning ? 'power-on' : 'power-off'}`;
-    powerBtn.textContent = isRunning ? '⏹ Tắt' : '▶ Bật';
+    powerBtn.innerHTML = powerLabel(isRunning);
   }
 
   const offOverlay = card.querySelector('[data-role="off-overlay"]');
@@ -719,7 +795,7 @@ function updateCardTextBoxUI(slotId, tb) {
 
   if (tb && tb.active) {
     bar.classList.remove('hidden');
-    titleEl.textContent = `⌨ ${tb.title || 'Nhập vào game'}:`;
+    titleEl.textContent = `${tb.title || 'Nhập vào game'}:`;
     inputEl.type = tb.password ? 'password' : 'text';
     inputEl.value = tb.text || '';
     if (slotId === state.focusedSlotId) {
@@ -872,6 +948,8 @@ function updateClusterStats() {
 
 function renderInspectorForFocusedSlot() {
   const slot = state.slots.find((s) => s.id === state.focusedSlotId);
+  // Không có tab nào thì ẩn hẳn bảng cài đặt (tránh hiện dữ liệu mẫu)
+  document.getElementById('inspectorPanel')?.classList.toggle('no-slot', !slot);
   if (!slot) return;
 
   document.querySelectorAll('.accent-slot-id').forEach((el) => {
@@ -884,11 +962,12 @@ function renderInspectorForFocusedSlot() {
 
   const pwrBtn = document.getElementById('inspBtnTogglePower');
   if (pwrBtn) {
-    pwrBtn.textContent = slot.running ? '⏹ Tắt máy' : '▶ Bật máy';
+    pwrBtn.innerHTML = slot.running ? `${icon('power', 'ico ico-sm')} Tắt máy` : `${icon('play', 'ico ico-sm')} Bật máy`;
   }
 
   const auto = slot.automation || {};
   document.getElementById('chkAutoLogin').checked = Boolean(auto.autoLoginEnabled);
+  document.getElementById('chkWatchdog').checked = auto.watchdogEnabled !== false;
   document.getElementById('chkPeriodicKey').checked = Boolean(auto.periodicKey?.enabled);
   document.getElementById('selPeriodicKeyCode').value = String(auto.periodicKey?.keyCode ?? -5);
   document.getElementById('inpPeriodicSec').value = auto.periodicKey?.intervalSec || 15;
@@ -944,17 +1023,318 @@ function updateInspectorRemainingTime() {
   const el = document.getElementById('infoRemainingTime');
   if (!slot || !el) return;
 
-  const diffMs = Math.max(0, (slot.expiresAt || Date.now()) - Date.now());
+  if (!slot.expiresAt) {
+    el.textContent = 'Không giới hạn';
+    return;
+  }
+  el.textContent = formatRemaining(slot.expiresAt);
+}
+
+function formatRemaining(expiresAt) {
+  const diffMs = Math.max(0, expiresAt - Date.now());
   const totalMinutes = Math.floor(diffMs / 60000);
   const days = Math.floor(totalMinutes / (60 * 24));
   const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
   const mins = totalMinutes % 60;
 
-  if (days > 0) {
-    el.textContent = `${days} ngày ${hours} giờ`;
-  } else {
-    el.textContent = `${hours} giờ ${mins} phút`;
+  return days > 0 ? `${days} ngày ${hours} giờ` : `${hours} giờ ${mins} phút`;
+}
+
+// ============================================================================
+// ACCOUNT (gói dịch vụ, đổi mật khẩu, đăng xuất)
+// ============================================================================
+function renderAccount() {
+  const me = state.me;
+  if (!me) return;
+  const quota = me.maxSlots === null ? `${me.slotCount} tab` : `${me.slotCount}/${me.maxSlots} tab`;
+  const expires = me.planExpiresAt
+    ? `${new Date(me.planExpiresAt).toLocaleString('vi-VN')} (còn ${formatRemaining(me.planExpiresAt)})`
+    : 'Không giới hạn';
+
+  document.getElementById('accountUsername').textContent = me.username;
+  document.getElementById('accountPlanPill').textContent = `${me.planLabel} · ${quota}`;
+  document.getElementById('accUsername').textContent = me.username;
+  document.getElementById('accPlan').textContent = me.planLabel;
+  document.getElementById('accSlots').textContent = `${quota}, đang chạy ${me.runningCount}`;
+  document.getElementById('accExpires').textContent = expires;
+  document.getElementById('btnGoAdmin').classList.toggle('hidden', me.role !== 'admin');
+
+  const infoQuota = document.getElementById('infoPlanQuota');
+  if (infoQuota) infoQuota.textContent = `${me.planLabel}: ${quota}. Hết hạn: ${expires}.`;
+
+  const topBalance = document.getElementById('topBalance');
+  if (topBalance) topBalance.textContent = formatVnd(me.balance || 0);
+
+  const banner = document.getElementById('planBanner');
+  if (banner) {
+    banner.classList.toggle('hidden', me.maxSlots !== 0);
+    banner.innerHTML = `<strong>Tài khoản chưa có gói dịch vụ</strong> (hoặc gói đã hết hạn) nên chưa thể mở tab treo game.
+         <button class="btn-emerald" data-open-billing>💳 Xem bảng giá & mua gói</button>`;
   }
+
+  if (state.billing && !document.getElementById('billingModal').classList.contains('hidden')) {
+    loadBilling();
+  }
+}
+
+function formatVnd(n) {
+  return Number(n || 0).toLocaleString('vi-VN') + 'đ';
+}
+
+// ============================================================================
+// BILLING (ví, mua gói, chuyển khoản VietQR — tiền về qua webhook SePay/Casso)
+// ============================================================================
+async function loadBilling() {
+  try {
+    const res = await fetch('/api/billing');
+    const data = await res.json();
+    state.billing = data;
+    if (data.me) state.me = data.me;
+    renderBilling();
+  } catch (err) {
+    showToast('Không tải được thông tin ví: ' + err.message);
+  }
+}
+
+function hasOtherActivePlan(product) {
+  const me = state.me;
+  return (
+    me.plan !== 'none' && me.plan !== product.plan &&
+    (!me.planExpiresAt || me.planExpiresAt > Date.now())
+  );
+}
+
+function renderBilling() {
+  const b = state.billing;
+  const me = state.me;
+  if (!b || !me) return;
+
+  document.getElementById('billBalance').textContent = formatVnd(me.balance);
+  document.getElementById('billPlan').textContent = me.planLabel;
+  document.getElementById('billExpiry').textContent = me.planExpiresAt
+    ? `hết hạn ${new Date(me.planExpiresAt).toLocaleString('vi-VN')}`
+    : '';
+  document.getElementById('topBalance').textContent = formatVnd(me.balance);
+
+  const disabled = document.getElementById('billDisabled');
+  disabled.classList.toggle('hidden', b.enabled);
+  disabled.textContent = `Chưa bật nạp tiền tự động. ${b.contact || ''}`;
+
+  document.getElementById('billProducts').innerHTML = b.products
+    .map((p) => {
+      const slots = p.maxSlots === null ? 'Không giới hạn tab' : `${p.maxSlots} tab chạy cùng lúc`;
+      return `
+      <button class="billing-product ${me.pendingProduct === p.id ? 'selected' : ''}" data-product="${escapeHtml(p.id)}" ${b.enabled ? '' : 'disabled'}>
+        <span class="bp-name">${escapeHtml(p.planLabel)} · ${p.days} ngày</span>
+        <span class="bp-meta">${slots}</span>
+        <span class="bp-price">${formatVnd(p.price)}</span>
+      </button>`;
+    })
+    .join('');
+
+  const renewSel = document.getElementById('billAutoRenew');
+  renewSel.innerHTML =
+    '<option value="">Tắt</option>' +
+    b.products
+      .map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.planLabel)} · ${p.days} ngày · ${formatVnd(p.price)}</option>`)
+      .join('');
+  renewSel.value = me.autoRenew || '';
+
+  const pending = b.products.find((p) => p.id === me.pendingProduct);
+  const missingForPending = pending ? pending.price - me.balance : 0;
+  if (pending && missingForPending > 0) {
+    const missing = missingForPending;
+    showPayBox(missing, `2. Chuyển khoản ${formatVnd(missing)} để mua ${pending.planLabel} ${pending.days} ngày`, true);
+  } else if (state.billingTopupOpen) {
+    showPayBox(0, '2. Nạp tiền vào ví (nhập số tiền tùy ý trong app ngân hàng)', false);
+  } else {
+    document.getElementById('billPayBox').classList.add('hidden');
+  }
+
+  const reasonLabel = { topup: 'Nạp tiền', purchase: 'Mua gói', admin: 'Admin điều chỉnh' };
+  const ledger = document.getElementById('billLedger');
+  ledger.innerHTML = b.ledger.length
+    ? b.ledger
+        .map(
+          (l) => `
+      <div class="bl-row">
+        <span>${new Date(l.createdAt).toLocaleString('vi-VN')} · ${escapeHtml(reasonLabel[l.reason] || l.reason)}
+          <span class="muted-text">${escapeHtml(l.note || '')}</span></span>
+        <span class="${l.delta > 0 ? 'bl-plus' : 'bl-minus'}">${l.delta > 0 ? '+' : ''}${formatVnd(l.delta)}</span>
+      </div>`
+        )
+        .join('')
+    : '<div class="muted-text">Chưa có giao dịch nào.</div>';
+}
+
+function showPayBox(amount, title, isPending) {
+  const b = state.billing;
+  if (!b.enabled) return;
+  const params = new URLSearchParams({ addInfo: b.payCode, accountName: b.bank.accountName });
+  if (amount > 0) params.set('amount', String(amount));
+  document.getElementById('billQr').src =
+    `https://img.vietqr.io/image/${encodeURIComponent(b.bank.id)}-${encodeURIComponent(b.bank.accountNo)}-compact2.png?${params}`;
+  document.getElementById('billPayTitle').textContent = title;
+  document.getElementById('billBank').textContent = b.bank.id;
+  document.getElementById('billAccNo').textContent = b.bank.accountNo;
+  document.getElementById('billAccName').textContent = b.bank.accountName || '--';
+  document.getElementById('billAmount').textContent = amount > 0 ? String(amount) : 'Tùy ý';
+  document.getElementById('billCode').textContent = b.payCode;
+  document.getElementById('billCancelPending').classList.toggle('hidden', !isPending);
+  document.getElementById('billHint').innerHTML =
+    'Quét mã QR bằng app ngân hàng, giữ nguyên <strong>nội dung chuyển khoản</strong>. Tiền về ví sau khoảng 10–60 giây' +
+    (isPending ? ', gói sẽ được kích hoạt tự động.' : '.');
+  document.getElementById('billPayBox').classList.remove('hidden');
+}
+
+async function buyProduct(product) {
+  const me = state.me;
+  const replace = hasOtherActivePlan(product);
+  if (replace && !confirm(`Bạn đang dùng gói ${me.planLabel}. Mua ${product.planLabel} sẽ THAY THẾ gói hiện tại, thời hạn còn lại không được cộng dồn. Tiếp tục?`)) {
+    return;
+  }
+
+  if (me.balance >= product.price) {
+    if (!confirm(`Mua ${product.planLabel} ${product.days} ngày với giá ${formatVnd(product.price)} (trừ vào ví)?`)) return;
+    const res = await fetch('/api/billing/buy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: product.id, confirmReplace: replace })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      showToast(data.error || 'Mua gói thất bại');
+      return;
+    }
+    state.me = data.me;
+    renderAccount();
+    await loadBilling();
+    return;
+  }
+
+  // Chưa đủ tiền: ghi nhớ gói đã chọn, server tự mua khi tiền chuyển khoản về
+  const res = await fetch('/api/billing/pending', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId: product.id })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    showToast(data.error || 'Không chọn được gói');
+    return;
+  }
+  state.me = data.me;
+  state.billingTopupOpen = false;
+  renderBilling();
+}
+
+function initBillingModal() {
+  const modal = document.getElementById('billingModal');
+  const open = async () => {
+    modal.classList.remove('hidden');
+    await loadBilling();
+  };
+  document.getElementById('btnOpenBillingModal').addEventListener('click', open);
+  document.getElementById('planBanner').addEventListener('click', (e) => {
+    if (e.target.closest('[data-open-billing]')) open();
+  });
+  document.getElementById('btnCloseBillingModal').addEventListener('click', () => modal.classList.add('hidden'));
+
+  document.getElementById('billProducts').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-product]');
+    const product = state.billing?.products.find((p) => p.id === btn?.dataset.product);
+    if (product) buyProduct(product);
+  });
+
+  document.getElementById('billShowTopup').addEventListener('click', async () => {
+    state.billingTopupOpen = true;
+    if (state.me?.pendingProduct) {
+      await fetch('/api/billing/pending', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: null })
+      });
+    }
+    await loadBilling();
+  });
+
+  document.getElementById('billAutoRenew').addEventListener('change', async (e) => {
+    const productId = e.target.value || null;
+    const res = await fetch('/api/billing/auto-renew', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      showToast(data.error || 'Không lưu được');
+      return;
+    }
+    state.me = data.me;
+    showToast(productId ? '🔁 Đã bật tự gia hạn. Nhớ giữ đủ tiền trong ví nhé!' : 'Đã tắt tự gia hạn');
+  });
+
+  document.getElementById('billCancelPending').addEventListener('click', async () => {
+    await fetch('/api/billing/pending', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: null })
+    });
+    await loadBilling();
+  });
+
+  modal.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    const text = document.getElementById(btn.dataset.copy).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(`Đã chép: ${text}`);
+    } catch (err) {
+      showToast('Không chép được, hãy bôi đen để chép tay');
+    }
+  });
+}
+
+function initAccountModal() {
+  const modal = document.getElementById('accountModal');
+  document.getElementById('btnOpenAccountModal').addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      if (data.me) {
+        state.me = data.me;
+        renderAccount();
+      }
+    } catch (e) {}
+    modal.classList.remove('hidden');
+  });
+  document.getElementById('btnCloseAccountModal').addEventListener('click', () =>
+    modal.classList.add('hidden')
+  );
+
+  document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const currentPassword = document.getElementById('pwCurrent').value;
+    const newPassword = document.getElementById('pwNew').value;
+    const res = await fetch('/api/me/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      showToast(data.error || 'Không đổi được mật khẩu');
+      return;
+    }
+    e.target.reset();
+    showToast('Đã đổi mật khẩu. Các thiết bị khác đã bị đăng xuất.');
+  });
+
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    location.replace('/login.html');
+  });
 }
 
 // ============================================================================
@@ -1095,13 +1475,6 @@ function initInspectorControls() {
     });
   });
 
-  document.querySelectorAll('[data-extend]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const hours = Number(btn.dataset.extend);
-      await patchSlot(state.focusedSlotId, { extendHours: hours });
-      showToast(`Đã gia hạn thêm ${hours >= 24 ? hours / 24 + ' ngày' : hours + ' giờ'}!`);
-    });
-  });
 }
 
 function switchInspectorTab(tabName) {
@@ -1203,7 +1576,7 @@ function renderMacroListForSlot(slot) {
   listEl.innerHTML = macros
     .map(
       (m) => `
-      <div class="macro-item" data-macro-id="${m.id}">
+      <div class="macro-item" data-macro-id="${escapeHtml(m.id)}">
         <div class="macro-item-top">
           <div>
             <span class="macro-name">${escapeHtml(m.name)}</span>
@@ -1259,6 +1632,7 @@ async function saveAutomationForFocusedSlot(overrideMacros) {
 
   const payload = {
     autoLoginEnabled: document.getElementById('chkAutoLogin').checked,
+    watchdogEnabled: document.getElementById('chkWatchdog').checked,
     macros: overrideMacros || slot.automation?.macros || [],
     periodicKey: {
       enabled: document.getElementById('chkPeriodicKey').checked,
@@ -1291,9 +1665,10 @@ async function toggleSlotPower(slotId, action = 'toggle') {
       body: JSON.stringify({ action })
     });
     const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Không thể điều khiển tab');
     if (data.slot) upsertSlotState(data.slot);
   } catch (err) {
-    showToast('Lỗi điều khiển nguồn: ' + err.message);
+    showToast(err.message);
   }
 }
 
@@ -1347,10 +1722,6 @@ async function applyPresetToSlot(slotId, presetId) {
 }
 
 async function handleDeleteSlot(slotId) {
-  if (state.slots.length <= 1) {
-    showToast('Phải giữ lại ít nhất 1 tab máy treo!');
-    return;
-  }
   const slot = state.slots.find((s) => s.id === slotId);
   if (!confirm(`Bạn có chắc muốn đóng và xóa tab "${slot?.name || slotId}" không?`)) {
     return;
@@ -1497,11 +1868,27 @@ function initTopbarControls() {
 // LIGHT / DARK THEME & CUSTOM WALLPAPER STUDIO
 // ============================================================================
 function initThemeAndWallpaper() {
+  // Giao diện mới "Đêm tuyết": chuyển 1 lần cho người đang dùng nền mặc định cũ
+  if (!localStorage.getItem('j2me_theme_v2')) {
+    localStorage.setItem('j2me_theme_v2', '1');
+    if ((localStorage.getItem('j2me_bg_preset') || 'cyber-jade') === 'cyber-jade') {
+      localStorage.setItem('j2me_bg_preset', 'winter-night');
+      localStorage.setItem('j2me_bg_dim', '30');
+      localStorage.setItem('j2me_bg_blur', '0');
+    }
+  }
+
   const savedTheme = localStorage.getItem('j2me_theme') || 'dark';
-  const savedBgPreset = localStorage.getItem('j2me_bg_preset') || 'cyber-jade';
+  const savedBgPreset = localStorage.getItem('j2me_bg_preset') || 'winter-night';
   const savedCustomBg = localStorage.getItem('j2me_custom_bg') || '';
-  const savedDim = localStorage.getItem('j2me_bg_dim') || '55';
-  const savedBlur = localStorage.getItem('j2me_bg_blur') || '6';
+  const savedDim = localStorage.getItem('j2me_bg_dim') || '30';
+  const savedBlur = localStorage.getItem('j2me_bg_blur') || '0';
+
+  const chkSnow = document.getElementById('chkSnow');
+  if (chkSnow && window.isSnowEnabled) {
+    chkSnow.checked = window.isSnowEnabled();
+    chkSnow.addEventListener('change', () => window.setSnowEnabled(chkSnow.checked));
+  }
 
   applyThemeMode(savedTheme);
   applyBgPreset(savedBgPreset);
@@ -1555,7 +1942,7 @@ function initThemeAndWallpaper() {
     localStorage.removeItem('j2me_custom_bg');
     document.getElementById('wallpaperLayer').style.backgroundImage = '';
     document.getElementById('customBgUrlInput').value = '';
-    applyBgPreset(localStorage.getItem('j2me_bg_preset') || 'cyber-jade');
+    applyBgPreset(localStorage.getItem('j2me_bg_preset') || 'winter-night');
     showToast('Đã khôi phục phông nền mặc định');
   });
 
@@ -1577,7 +1964,7 @@ function applyThemeMode(theme) {
 
   const iconEl = document.getElementById('themeSwitchIcon');
   const labelEl = document.getElementById('themeSwitchLabel');
-  if (iconEl) iconEl.textContent = theme === 'light' ? '☀️' : '🌙';
+  if (iconEl) iconEl.innerHTML = icon(theme === 'light' ? 'sun' : 'moon');
   if (labelEl) labelEl.textContent = theme === 'light' ? 'Sáng' : 'Tối';
 
   document.querySelectorAll('[data-set-theme]').forEach((c) => {
@@ -1643,6 +2030,10 @@ function initModals() {
       body: JSON.stringify({ name, presetId })
     });
     const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'Lỗi tạo tab mới');
+      return;
+    }
     if (data.slot) {
       newTabModal.classList.add('hidden');
       document.getElementById('newTabNameInput').value = '';
@@ -1752,7 +2143,6 @@ function renderManageSlotsModal() {
         </div>
         <div style="display:flex;gap:6px;">
           <button class="q-btn" data-mg-power="${s.id}">${s.running ? '⏹ Tắt' : '▶ Bật'}</button>
-          <button class="q-btn" data-mg-extend="${s.id}">+7 Ngày</button>
           <button class="q-btn" data-mg-focus="${s.id}">⚙ Mở cài đặt</button>
         </div>
       </div>
@@ -1764,14 +2154,6 @@ function renderManageSlotsModal() {
     b.addEventListener('click', async () => {
       await toggleSlotPower(b.dataset.mgPower, 'toggle');
       renderManageSlotsModal();
-    });
-  });
-
-  listEl.querySelectorAll('[data-mg-extend]').forEach((b) => {
-    b.addEventListener('click', async () => {
-      await patchSlot(b.dataset.mgExtend, { extendHours: 168 });
-      renderManageSlotsModal();
-      showToast(`Đã gia hạn thêm 7 ngày cho ${b.dataset.mgExtend}`);
     });
   });
 

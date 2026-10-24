@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập — TreoGame</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <style>
+    /* Nền tô ở <html> để lớp tuyết (z-index -1) không bị nền body che */
+    html {
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(121, 176, 255, 0.2), transparent 70%),
+        radial-gradient(circle at 85% 95%, var(--accent-Soft), transparent 45%),
+        var(--bg-base);
+      min-height: 100%;
+    }
+    body.auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: transparent;
+    }
+    .auth-card {
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .auth-brand .brand-title { font-size: 24px; }
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      padding: 28px 24px;
+    }
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .auth-tabs .mode-tab { flex: 1; }
+    .hidden { display: none; }
+    .auth-error {
+      min-height: 18px;
+      color: var(--danger);
+      font-size: 13px;
+      margin: 4px 0 10px;
+    }
+    .auth-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body class="auth-page">
+  <main class="auth-card">
+    <div class="auth-brand brand-logo">
+      <div class="brand-emblem"><span class="brand-emblem-dot"></span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2M4 9l2 3-2 3M20 9l-2 3 2 3"/></svg></div>
+      <div class="brand-copy">
+        <div class="brand-title">Treo<em>Game</em></div>
+        <div class="brand-subtitle">Treo game Java 24/7</div>
+      </div>
+    </div>
+
+    <div class="auth-tabs mode-switch-tabs" id="authTabs">
+      <button class="mode-tab active" data-mode="login" type="button">Đăng nhập</button>
+      <button class="mode-tab" data-mode="register" type="button">Đăng ký</button>
+    </div>
+
+    <form id="authForm" autocomplete="on">
+      <div class="form-group">
+        <label for="username">Tên đăng nhập</label>
+        <input class="input-field" id="username" name="username" autocomplete="username" required minlength="3" maxlength="32" />
+      </div>
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input class="input-field" id="password" name="password" type="password" autocomplete="current-password" required minlength="6" />
+      </div>
+      <div class="form-group hidden" id="confirmGroup">
+        <label for="password2">Nhập lại mật khẩu</label>
+        <input class="input-field" id="password2" type="password" autocomplete="new-password" minlength="6" />
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <button class="btn-primary-glow full-width" id="authSubmit" type="submit">Đăng nhập</button>
+    </form>
+    <div class="auth-hint" id="authHint">Đăng ký xong, liên hệ admin để mua gói và bắt đầu treo game.</div>
+  </main>
+
+  <script src="snow.js"></script>
+  <script>
+    let mode = 'login';
+    const $ = (id) => document.getElementById(id);
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#authTabs .mode-tab').forEach((b) =>
+        b.classList.toggle('active', b.dataset.mode === m)
+      );
+      $('confirmGroup').classList.toggle('hidden', m !== 'register');
+      $('password').autocomplete = m === 'register' ? 'new-password' : 'current-password';
+      $('authSubmit').textContent = m === 'register' ? 'Tạo tài khoản' : 'Đăng nhập';
+      $('authError').textContent = '';
+    }
+
+    document.querySelectorAll('#authTabs .mode-tab').forEach((b) =>
+      b.addEventListener('click', () => setMode(b.dataset.mode))
+    );
+
+    fetch('/api/auth/config')
+      .then((r) => r.json())
+      .then((cfg) => {
+        if (cfg.loggedIn) location.replace('/');
+        if (!cfg.allowRegister) {
+          document.querySelector('[data-mode="register"]').remove();
+          $('authHint').textContent = 'Liên hệ admin để được cấp tài khoản. ' + (cfg.contact || '');
+        } else if (cfg.contact) {
+          $('authHint').textContent = 'Đăng ký xong, mua gói để bắt đầu treo game. ' + cfg.contact;
+        }
+      })
+      .catch(() => {});
+
+    $('authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = $('username').value.trim();
+      const password = $('password').value;
+      if (mode === 'register' && password !== $('password2').value) {
+        $('authError').textContent = 'Hai mật khẩu không khớp.';
+        return;
+      }
+      $('authSubmit').disabled = true;
+      try {
+        const res = await fetch(`/api/auth/${mode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Có lỗi xảy ra');
+        location.replace('/');
+      } catch (err) {
+        $('authError').textContent = err.message;
+      } finally {
+        $('authSubmit').disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

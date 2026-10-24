@@ -1864,3 +1864,396 @@ body[data-sharpness="smooth"] .device-canvas {
     max-height: none;
   }
 }
+
+/* ==========================================================================
+   ACCOUNT BUTTON & MODAL
+   ========================================================================== */
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-btn .plan-pill {
+  font-size: 10.5px;
+}
+
+#btnGoAdmin {
+  text-decoration: none;
+}
+
+#btnGoAdmin.hidden {
+  display: none;
+}
+
+/* Ẩn chức năng tải .jar với user thường (chỉ admin được upload) */
+body.no-upload .upload-only,
+body:not(.no-upload) .no-upload-only {
+  display: none !important;
+}
+
+/* ==========================================================================
+   PLAN BANNER (chưa có gói / hết hạn)
+   ========================================================================== */
+.plan-banner {
+  margin: 10px 16px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--warning);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.plan-banner strong {
+  color: var(--warning);
+}
+
+.plan-banner.hidden {
+  display: none;
+}
+
+.inspector-panel.no-slot,
+#inspectorPanel.no-slot {
+  display: none !important;
+}
+
+/* ==========================================================================
+   BILLING MODAL (ví, gói, VietQR)
+   ========================================================================== */
+.billing-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.muted-text {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.billing-note {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--warning);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.billing-note.hidden,
+.billing-pay-info .hidden,
+#billPayBox.hidden {
+  display: none;
+}
+
+.billing-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.billing-product {
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-elevated);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.billing-product:hover {
+  border-color: var(--accent);
+}
+
+.billing-product.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-Soft);
+}
+
+.billing-product .bp-name {
+  font-weight: 700;
+}
+
+.billing-product .bp-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.billing-product .bp-price {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.billing-pay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.billing-qr {
+  width: 220px;
+  max-width: 100%;
+  border-radius: 12px;
+  background: #fff;
+  padding: 6px;
+}
+
+.billing-pay-info {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.billing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.billing-row > span {
+  width: 100px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.billing-row > strong {
+  flex: 1;
+  word-break: break-all;
+}
+
+.billing-code {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--warning);
+  letter-spacing: 0.5px;
+}
+
+.billing-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.billing-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.billing-ledger .bl-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.billing-ledger .bl-plus {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.billing-ledger .bl-minus {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.plan-banner .btn-emerald {
+  margin-left: 8px;
+  padding: 4px 10px;
+}
+
+.billing-btn.hidden {
+  display: none;
+}
+
+.billing-ledger {
+  overflow-x: hidden;
+}
+
+.billing-ledger .bl-row > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.billing-ledger .bl-row > span:last-child {
+  flex-shrink: 0;
+}
+
+.billing-renew {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.billing-renew .select-field {
+  max-width: 360px;
+}
+
+/* ==========================================================================
+   ĐIỆN THOẠI (≤ 640px): thanh công cụ gọn, tab game rộng hết màn hình,
+   bảng cài đặt tab là tấm trượt từ dưới lên, hộp thoại gần toàn màn hình
+   ========================================================================== */
+@media (max-width: 640px) {
+  .topbar {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    gap: 6px;
+  }
+
+  /* Ẩn các nút chỉnh hiển thị ít dùng trên điện thoại */
+  .topbar-center,
+  .cluster-stats,
+  .brand-subtitle,
+  .brand-tag,
+  #btnThemeSwitch,
+  #btnOpenBgModal,
+  #btnOpenManageModal,
+  .account-btn .plan-pill {
+    display: none !important;
+  }
+
+  .brand-title {
+    font-size: 13px;
+  }
+
+  .topbar-right {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .topbar-right .btn-tool,
+  .topbar-right .btn-primary-glow,
+  .topbar-right .btn-inspector-toggle {
+    padding: 6px 9px;
+    font-size: 12.5px;
+  }
+
+  /* Lệnh nhanh & danh sách tab: 1 hàng vuốt ngang */
+  .subbar {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .quick-cmd-label {
+    display: none;
+  }
+
+  .quick-cmd-bar,
+  .quick-chips-wrap,
+  .slot-pills-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .quick-cmd-bar > *,
+  .quick-chips-wrap > *,
+  .slot-pills-bar > * {
+    flex-shrink: 0;
+  }
+
+  .subbar-left,
+  .subbar-right {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .workspace {
+    padding: 10px 8px 28px;
+    gap: 10px;
+  }
+
+  /* Tab game rộng hết màn hình, hình co giãn theo bề ngang */
+  .devices-grid {
+    gap: 10px;
+  }
+
+  .devices-grid .device-card,
+  .devices-grid .add-slot-card {
+    width: 100% !important;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .devices-grid .device-canvas {
+    width: 100% !important;
+  }
+
+  .plan-banner {
+    margin: 8px 8px 0;
+  }
+
+  /* Bảng cài đặt tab: tấm trượt từ dưới lên */
+  .inspector-panel {
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100% !important;
+    max-height: 82vh !important;
+    border-radius: 16px 16px 0 0;
+    z-index: 80;
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Hộp thoại gần toàn màn hình */
+  .modal-dialog,
+  .modal-dialog.modal-lg {
+    width: calc(100vw - 16px) !important;
+    max-width: none;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .billing-qr {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+
+  .billing-row > span {
+    width: 86px;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-wrap: nowrap;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    flex-wrap: nowrap;
+  }
+
+  .topbar-right .btn-label {
+    display: none;
+  }
+
+  .brand-copy {
+    display: none;
+  }
+}

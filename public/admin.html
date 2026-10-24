@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — TreoGame</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <style>
+    body.admin-page {
+      min-height: 100vh;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      padding: 0 16px 40px;
+      overflow: auto;
+    }
+    .admin-wrap { max-width: 1100px; margin: 0 auto; }
+    .admin-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 18px 0;
+    }
+    .admin-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .admin-card h2 { font-size: 15px; margin: 0 0 12px; }
+    .admin-card.alert { border-color: var(--warning); }
+    .admin-card.hidden { display: none; }
+    details.admin-card > summary { cursor: pointer; font-weight: 700; font-size: 15px; list-style: none; }
+    details.admin-card > summary::-webkit-details-marker { display: none; }
+    details.admin-card > summary::before { content: '▸ '; color: var(--text-muted); }
+    details.admin-card[open] > summary::before { content: '▾ '; }
+    details.admin-card[open] > summary { margin-bottom: 12px; }
+    .admin-table-wrap { overflow-x: auto; }
+    table.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th, .admin-table td {
+      text-align: left;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .admin-table th { color: var(--text-secondary); font-weight: 600; }
+    .admin-table td.num { font-variant-numeric: tabular-nums; }
+    .admin-table td.wrap { white-space: normal; max-width: 280px; }
+    .row-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .muted { color: var(--text-muted); font-weight: 400; }
+    .tag-off { color: var(--danger); font-weight: 600; }
+    .tag-on { color: var(--accent); font-weight: 600; }
+    .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .card-head h2 { margin: 0; }
+    .card-head .input-field { max-width: 260px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 16px; }
+    .settings-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--text-secondary); }
+    .settings-grid .span-2 { grid-column: 1 / -1; }
+    .settings-sub { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-top: 6px; }
+    .secret-row { display: flex; gap: 6px; }
+    .secret-row .input-field { flex: 1; }
+    .secret-row .hidden { display: none; }
+    .settings-grid code { font-size: 11.5px; color: var(--text-primary); word-break: break-all; }
+    .settings-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .settings-preview { margin-top: 14px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: 12.5px; }
+    .settings-preview img { width: 160px; border-radius: 10px; background: #fff; padding: 4px; }
+  </style>
+</head>
+<body class="admin-page">
+  <div class="admin-wrap">
+    <header class="admin-head">
+      <div class="brand-logo">
+        <div class="brand-emblem"><span class="brand-emblem-dot"></span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2M4 9l2 3-2 3M20 9l-2 3 2 3"/></svg></div>
+        <div class="brand-copy">
+          <div class="brand-title">Treo<em>Game</em> · Quản trị</div>
+          <div class="brand-subtitle">Thành viên tự nạp tiền, tự mua gói — admin chỉ xử lý khi cần</div>
+        </div>
+      </div>
+      <div class="row-actions">
+        <a class="btn-ghost" href="/" style="text-decoration:none;">← Về trang treo game</a>
+        <button class="btn-ghost" id="btnRefresh">↻ Tải lại</button>
+      </div>
+    </header>
+
+    <div class="stat-row" id="statRow"></div>
+
+    <!-- Chỉ hiện khi có giao dịch khách ghi sai nội dung -->
+    <section class="admin-card alert hidden" id="unmatchedCard">
+      <h2>⚠ Giao dịch cần xử lý <span class="muted">— khách chuyển khoản sai nội dung, bấm "Gán" để cộng tiền đúng người</span></h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Thời gian</th><th>Số tiền</th><th>Nội dung chuyển khoản</th><th></th></tr></thead>
+          <tbody id="unmatchedBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-card">
+      <div class="card-head">
+        <h2>👥 Thành viên <span class="muted" id="userCount"></span></h2>
+        <input class="input-field" id="userSearch" placeholder="🔍 Tìm theo tên đăng nhập" autocomplete="off" />
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>User</th><th>Gói</th><th>Hết hạn</th><th>Tab</th><th>Số dư</th><th>Trạng thái</th><th></th></tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="admin-card" id="settingsCard">
+      <summary>⚙ Cài đặt thanh toán & liên hệ <span class="muted" id="billingState"></span></summary>
+      <form id="settingsForm" class="settings-grid">
+        <label>Ngân hàng (mã VietQR)
+          <input class="input-field" name="bank_id" list="bankList" placeholder="VD: MB, VCB, TCB" autocomplete="off" />
+        </label>
+        <label>Số tài khoản
+          <input class="input-field" name="bank_account_no" inputmode="numeric" placeholder="Chỉ gồm số" autocomplete="off" />
+        </label>
+        <label>Tên chủ tài khoản
+          <input class="input-field" name="bank_account_name" placeholder="Tự đổi thành IN HOA, không dấu" autocomplete="off" />
+        </label>
+        <label class="span-2">Thông tin liên hệ hỗ trợ
+          <input class="input-field" name="contact_info" placeholder="VD: Zalo 0912 345 678 · fb.com/treogame" />
+        </label>
+
+        <div class="span-2 settings-sub">Webhook báo tiền về (chỉ hoạt động khi web có tên miền công khai)</div>
+        <label>SePay API Key
+          <span class="secret-row">
+            <input class="input-field" type="password" name="sepay_api_key" autocomplete="new-password" />
+            <button class="q-btn" type="button" data-clear="sepay_api_key">Xóa</button>
+          </span>
+          <span class="muted">URL: <code data-webhook="sepay"></code> · xác thực "API Key"</span>
+        </label>
+        <label>Casso – khóa bảo mật (webhook V2)
+          <span class="secret-row">
+            <input class="input-field" type="password" name="casso_checksum_key" autocomplete="new-password" />
+            <button class="q-btn" type="button" data-clear="casso_checksum_key">Xóa</button>
+          </span>
+          <span class="muted">URL: <code data-webhook="casso"></code></span>
+        </label>
+        <label>Casso – secure-token (webhook kiểu cũ)
+          <span class="secret-row">
+            <input class="input-field" type="password" name="casso_secure_token" autocomplete="new-password" />
+            <button class="q-btn" type="button" data-clear="casso_secure_token">Xóa</button>
+          </span>
+        </label>
+
+        <div class="span-2 settings-actions">
+          <button class="btn-emerald" type="submit">💾 Lưu cài đặt</button>
+          <span class="muted" id="payPrefixNote"></span>
+        </div>
+      </form>
+      <div class="settings-preview" id="settingsPreview"></div>
+      <datalist id="bankList">
+        <option value="VCB">Vietcombank</option>
+        <option value="ICB">VietinBank</option>
+        <option value="BIDV">BIDV</option>
+        <option value="VBA">Agribank</option>
+        <option value="TCB">Techcombank</option>
+        <option value="MB">MB Bank</option>
+        <option value="ACB">ACB</option>
+        <option value="VPB">VPBank</option>
+        <option value="TPB">TPBank</option>
+        <option value="STB">Sacombank</option>
+        <option value="VIB">VIB</option>
+        <option value="HDB">HDBank</option>
+        <option value="SHB">SHB</option>
+        <option value="OCB">OCB</option>
+        <option value="MSB">MSB</option>
+        <option value="EIB">Eximbank</option>
+      </datalist>
+    </details>
+
+    <details class="admin-card">
+      <summary>💰 Giao dịch gần đây <span class="muted" id="paySummary"></span></summary>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Thời gian</th><th>Nguồn</th><th>Số tiền</th><th>Nội dung</th><th>User</th><th>Trạng thái</th></tr>
+          </thead>
+          <tbody id="paymentsBody"></tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="snow.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

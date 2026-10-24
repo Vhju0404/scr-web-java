@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="dark" data-bg="cyber-jade">
+<html lang="vi" data-theme="dark" data-bg="winter-night">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>J2ME CLOUD STUDIO — Đa Tab Treo Game Java 24/7</title>
+  <title>TreoGame — Treo game Java 24/7</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
 </head>
 <body>
   <!-- Hidden SVG Smart Sharpen Filter for non-integer canvas scaling so game fonts never look blurry -->
@@ -33,11 +34,11 @@
       <div class="brand-logo">
         <div class="brand-emblem">
           <span class="brand-emblem-dot"></span>
-          J2
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2M4 9l2 3-2 3M20 9l-2 3 2 3"/></svg>
         </div>
         <div class="brand-copy">
-          <div class="brand-title">CLOUD J2ME <span class="brand-tag">PRO STUDIO</span></div>
-          <div class="brand-subtitle">Treo Đa Tab Song Song 24/7 • Đồng Bộ Đa Acc</div>
+          <div class="brand-title">Treo<em>Game</em></div>
+          <div class="brand-subtitle">Treo game Java 24/7 trên máy chủ</div>
         </div>
       </div>
 
@@ -49,7 +50,7 @@
 
         <!-- Eco Mode Toggle Switch -->
         <button class="switch-pill" id="btnToggleEco" title="Bật/Tắt Chế độ Siêu nhẹ: Giảm 75% CPU/RAM & tắt hiệu ứng nặng cho các tab nền">
-          <span class="switch-icon">⚡</span>
+          <span class="switch-icon"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></span>
           <span>Siêu nhẹ</span>
           <span class="switch-track"><span class="switch-thumb"></span></span>
           <strong class="switch-state" id="ecoStatusText">BẬT</strong>
@@ -57,8 +58,8 @@
 
         <!-- Multi-Tab Sync Control Toggle ("Điều khiển cùng lúc nhiều acc") -->
         <button class="switch-pill sync-pill" id="btnToggleSync" title="Đồng bộ thao tác (Multi-Box): Bấm chuột, bấm phím hoặc gõ chữ ở 1 tab sẽ tự động thực hiện trên TẤT CẢ các tab đang bật">
-          <span class="switch-icon">🔗</span>
-          <span>Đồng bộ đa tab</span>
+          <span class="switch-icon"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+          <span>Đồng bộ</span>
           <span class="switch-track"><span class="switch-thumb"></span></span>
           <strong class="switch-state" id="syncStatusText">TẮT</strong>
         </button>
@@ -78,35 +79,44 @@
 
       <!-- Font Rendering Mode Selector -->
       <button class="btn-tool active-sharpen" id="btnCycleSharpness" title="Chế độ khử mờ chữ trong game khi phóng to/thu nhỏ">
-        ✨ Chữ game: <strong id="sharpnessLabel">Siêu nét HD</strong>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg> <strong id="sharpnessLabel">Siêu nét HD</strong>
       </button>
 
       <button class="btn-tool" id="btnToggleAllKeypads" title="Ẩn/Hiện bàn phím ảo dưới tất cả các tab để gọn màn hình">
-        ⌨ Phím: <strong id="allKeypadsText">Hiện</strong>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/></svg> <strong id="allKeypadsText">Hiện</strong>
       </button>
     </div>
 
     <!-- Right Actions: Theme, Wallpaper, Add Tab, Inspector Toggle -->
     <div class="topbar-right">
       <button class="btn-theme-switch" id="btnThemeSwitch" title="Chuyển chế độ Sáng / Tối">
-        <span id="themeSwitchIcon">🌙</span>
-        <span id="themeSwitchLabel">Tối</span>
+        <span id="themeSwitchIcon"></span>
+        <span id="themeSwitchLabel" class="btn-label">Tối</span>
       </button>
 
       <button class="btn-tool" id="btnOpenBgModal" title="Đổi hình nền & phong cách giao diện">
-        🎨 Đổi nền
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span class="btn-label"> Giao diện</span>
       </button>
 
-      <button class="btn-tool" id="btnOpenManageModal" title="Quản lý danh sách máy treo & gia hạn">
-        📋 Quản lý
+      <button class="btn-tool" id="btnOpenManageModal" title="Quản lý danh sách máy treo">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="btn-label"> Quản lý</span>
+      </button>
+
+      <button class="btn-tool billing-btn" id="btnOpenBillingModal" title="Nạp tiền & mua gói">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 11h-5a2 2 0 0 0 0 4h5v-4z"/></svg> <strong id="topBalance">0đ</strong>
+      </button>
+
+      <button class="btn-tool account-btn" id="btnOpenAccountModal" title="Tài khoản & gói dịch vụ">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg> <strong id="accountUsername">...</strong>
+        <span class="plan-pill" id="accountPlanPill">--</span>
       </button>
 
       <button class="btn-primary-glow" id="btnOpenNewTabModal">
-        <span>＋</span> Thêm tab mới
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="btn-label"> Thêm tab</span>
       </button>
 
       <button class="btn-inspector-toggle active" id="btnToggleInspector" title="Đóng/Mở bảng cài đặt của tab đang chọn">
-        ⚙ Cài đặt tab
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span class="btn-label"> Cài đặt</span>
       </button>
     </div>
   </header>
@@ -115,7 +125,7 @@
   <div class="subbar">
     <div class="subbar-left">
       <div class="quick-cmd-bar">
-        <span class="quick-cmd-label">⚡ Lệnh nhanh:</span>
+        <span class="quick-cmd-label">Lệnh nhanh</span>
         <div class="quick-chips-wrap" id="quickChipsWrap">
           <!-- Rendered by JS: clickable quick chat/command chips + "+" button -->
         </div>
@@ -130,6 +140,9 @@
   </div>
 
   <!-- Main Workspace: Parallel Multi-Screen Wall + Contextual Per-Tab Inspector -->
+  <!-- Hiện khi tài khoản chưa có gói / gói hết hạn -->
+  <div class="plan-banner hidden" id="planBanner"></div>
+
   <main class="workspace" id="workspaceContainer">
     <!-- Left/Center: Parallel Multi-Screen Grid -->
     <section class="screens-stage" id="screensStage">
@@ -155,25 +168,25 @@
 
       <!-- Inspector Quick Slot Bar -->
       <div class="insp-quick-bar">
-        <button class="insp-action-btn" id="inspBtnTogglePower">⏹ Tắt máy</button>
+        <button class="insp-action-btn" id="inspBtnTogglePower">Tắt máy</button>
         <button class="insp-action-btn" id="inspBtnRestart">↻ Khởi động lại</button>
-        <button class="insp-action-btn" id="inspBtnRename">✎ Đổi tên</button>
-        <button class="insp-action-btn danger" id="inspBtnDeleteSlot" title="Xóa tab này">🗑 Xóa tab</button>
+        <button class="insp-action-btn" id="inspBtnRename">Đổi tên</button>
+        <button class="insp-action-btn danger" id="inspBtnDeleteSlot" title="Xóa tab này">Xóa tab</button>
       </div>
 
       <!-- Inspector Navigation Tabs -->
       <div class="insp-tabs">
-        <button class="insp-tab active" data-insptab="auto">🤖 Tự động & Gõ chữ</button>
-        <button class="insp-tab" data-insptab="game">📦 File .JAR & Màn hình</button>
-        <button class="insp-tab" data-insptab="info">⚡ Thông tin & Gói</button>
+        <button class="insp-tab active" data-insptab="auto">Tự động & Gõ chữ</button>
+        <button class="insp-tab" data-insptab="game">File .JAR & Màn hình</button>
+        <button class="insp-tab" data-insptab="info">Thông tin & Gói</button>
       </div>
 
       <!-- Inspector Tab 1: Automation, Macros & Text Input -->
       <div class="insp-tab-pane active" id="inspPane-auto">
         <!-- Send Text into Selected Tab -->
         <div class="insp-card">
-          <div class="insp-card-title">⌨ Gõ chữ vào tab <span class="accent-slot-id">JS00005</span></div>
-          <div class="insp-card-desc">Gửi nhanh tài khoản, mật khẩu hoặc chat vào ô nhập chữ trong game (nếu bật 🔗 Đồng bộ sẽ gửi vào tất cả tab).</div>
+          <div class="insp-card-title">Gõ chữ vào tab <span class="accent-slot-id">JS00005</span></div>
+          <div class="insp-card-desc">Gửi nhanh tài khoản, mật khẩu hoặc chat vào ô nhập chữ trong game (nếu bật Đồng bộ sẽ gửi vào tất cả tab).</div>
           <div class="text-send-row">
             <input type="text" id="sendTextInput" class="input-field" placeholder="Nhập văn bản cần gửi..." />
             <button class="btn-emerald" id="btnSendText">Gửi</button>
@@ -183,7 +196,7 @@
         <!-- Macro Recording & Playback for Selected Tab -->
         <div class="insp-card">
           <div class="insp-card-head-row">
-            <div class="insp-card-title">🎬 Kịch bản thao tác (Macro)</div>
+            <div class="insp-card-title">Kịch bản thao tác (Macro)</div>
             <span class="badge-count" id="macroCountBadge">0 kịch bản</span>
           </div>
           <div class="insp-card-desc">
@@ -203,7 +216,7 @@
                 <option value="loop">Loại: Treo máy / Đánh quái định kỳ</option>
               </select>
               <div class="rec-btn-row">
-                <button class="btn-emerald" id="btnSaveRecording">💾 Lưu kịch bản</button>
+                <button class="btn-emerald" id="btnSaveRecording">Lưu kịch bản</button>
                 <button class="btn-ghost" id="btnCancelRecording">Hủy</button>
               </div>
             </div>
@@ -221,11 +234,16 @@
 
         <!-- Auto Reconnect & Anti-AFK for Selected Tab -->
         <div class="insp-card">
-          <div class="insp-card-title">🛡 Tự đăng nhập & Chống AFK</div>
+          <div class="insp-card-title">Tự đăng nhập & Chống AFK</div>
 
           <label class="toggle-row">
             <input type="checkbox" id="chkAutoLogin" />
             <span>Tự chạy kịch bản <strong>Đăng nhập</strong> khi khởi động lại hoặc mất kết nối</span>
+          </label>
+
+          <label class="toggle-row">
+            <input type="checkbox" id="chkWatchdog" />
+            <span><strong>Watchdog</strong>: tự khởi động lại game khi bị đơ hoặc mất kết nối quá 3 phút (nên bật cùng Tự đăng nhập)</span>
           </label>
 
           <div class="divider-line"></div>
@@ -265,7 +283,7 @@
             <span>giờ / lần</span>
           </div>
 
-          <button class="btn-emerald full-width mt-10" id="btnSaveAutomation">💾 Lưu cấu hình tự động cho tab này</button>
+          <button class="btn-emerald full-width mt-10" id="btnSaveAutomation">Lưu cấu hình tự động cho tab này</button>
         </div>
       </div>
 
@@ -273,21 +291,24 @@
       <div class="insp-tab-pane" id="inspPane-game">
         <!-- Upload Custom .JAR to Selected Tab -->
         <div class="insp-card highlight-upload">
-          <div class="insp-card-title">📤 Gửi file .JAR lên tab <span class="accent-slot-id">JS00005</span></div>
-          <div class="insp-card-desc">
-            Tải bất kỳ bản mod `.jar` nào từ máy tính/điện thoại của bạn lên. File sẽ chạy bằng CPU/RAM của VPS và tự lưu vào Kho Game để dùng cho các tab khác.
+          <div class="upload-only">
+            <div class="insp-card-title">Gửi file .JAR lên tab <span class="accent-slot-id">JS00005</span></div>
+            <div class="insp-card-desc">
+              Tải bất kỳ bản mod `.jar` nào từ máy tính/điện thoại của bạn lên. File sẽ chạy bằng CPU/RAM của VPS và tự lưu vào Kho Game để dùng cho các tab khác.
+            </div>
+
+            <input type="file" id="jarUploadInput" accept=".jar" hidden />
+            <div class="upload-dropzone" id="uploadDropzone">
+              <div class="dropzone-icon"></div>
+              <div class="dropzone-title">Bấm để chọn hoặc kéo thả file <strong>.jar</strong> vào đây</div>
+              <div class="dropzone-sub">Hỗ trợ mọi game J2ME MIDP 2.0 (Tối đa 20MB)</div>
+            </div>
+
+            <div class="divider-line"></div>
           </div>
 
-          <input type="file" id="jarUploadInput" accept=".jar" hidden />
-          <div class="upload-dropzone" id="uploadDropzone">
-            <div class="dropzone-icon">📦</div>
-            <div class="dropzone-title">Bấm để chọn hoặc kéo thả file <strong>.jar</strong> vào đây</div>
-            <div class="dropzone-sub">Hỗ trợ mọi game J2ME MIDP 2.0 (Tối đa 20MB)</div>
-          </div>
-
-          <div class="divider-line"></div>
-
-          <div class="field-label">Hoặc chọn nhanh từ Kho Game có sẵn trên Server:</div>
+          <div class="insp-card-title no-upload-only">Chọn game cho tab <span class="accent-slot-id">JS00005</span></div>
+          <div class="field-label">Chọn nhanh từ Kho Game có sẵn trên Server:</div>
           <div class="preset-select-row">
             <select id="presetSelect" class="select-field">
               <!-- Populated by JS -->
@@ -298,7 +319,7 @@
 
         <!-- Current JAR Details -->
         <div class="insp-card">
-          <div class="insp-card-title">ℹ Thông tin bản Game đang nạp</div>
+          <div class="insp-card-title">Thông tin bản Game đang nạp</div>
           <div class="jar-meta-grid">
             <div class="meta-item">
               <span class="meta-label">Tên MIDlet:</span>
@@ -325,7 +346,7 @@
 
         <!-- Screen Resolution & FPS -->
         <div class="insp-card">
-          <div class="insp-card-title">🖥 Độ phân giải gốc & Tốc độ khung hình</div>
+          <div class="insp-card-title">Độ phân giải gốc & Tốc độ khung hình</div>
           <div class="insp-card-desc">Mẹo: Để độ phân giải 240×320 kết hợp cỡ tab <strong>1:1 Nét căng</strong> hoặc <strong>Siêu nét HD</strong> sẽ cho chữ trong game rõ nhất.</div>
 
           <div class="res-chips">
@@ -357,7 +378,7 @@
       <!-- Inspector Tab 3: Slot Status & Plan Info -->
       <div class="insp-tab-pane" id="inspPane-info">
         <div class="insp-card">
-          <div class="insp-card-title">⚡ Trạng thái máy treo <span class="accent-slot-id">JS00005</span></div>
+          <div class="insp-card-title">Trạng thái máy treo <span class="accent-slot-id">JS00005</span></div>
           <div class="jar-meta-grid">
             <div class="meta-item">
               <span class="meta-label">Mã tab:</span>
@@ -381,19 +402,16 @@
 
           <div class="field-label">Đánh dấu trạng thái trong game:</div>
           <div class="status-tag-group">
-            <button class="status-tag-btn" data-igstatus="Đã vào game">🟢 Đã vào game</button>
-            <button class="status-tag-btn" data-igstatus="Đang treo">⚡ Đang treo</button>
-            <button class="status-tag-btn" data-igstatus="Chưa vào game">⚪ Chưa vào game</button>
+            <button class="status-tag-btn" data-igstatus="Đã vào game">Đã vào game</button>
+            <button class="status-tag-btn" data-igstatus="Đang treo">Đang treo</button>
+            <button class="status-tag-btn" data-igstatus="Chưa vào game">Chưa vào game</button>
           </div>
 
           <div class="divider-line"></div>
 
-          <div class="field-label">Gia hạn nhanh thời gian máy treo:</div>
-          <div class="extend-btn-row">
-            <button class="btn-ghost" data-extend="24">+1 Ngày</button>
-            <button class="btn-ghost" data-extend="168">+7 Ngày (VIP)</button>
-            <button class="btn-ghost" data-extend="720">+30 Ngày (VIP)</button>
-          </div>
+          <div class="field-label">Gói dịch vụ của tài khoản:</div>
+          <div class="modal-desc" id="infoPlanQuota">--</div>
+          <div class="modal-desc">Gói và thời hạn áp dụng cho cả tài khoản. Muốn nâng cấp hoặc gia hạn, hãy liên hệ admin.</div>
         </div>
       </div>
     </aside>
@@ -403,7 +421,7 @@
   <div class="modal-backdrop hidden" id="newTabModal">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3>＋ Mở thêm Tab máy treo mới</h3>
+        <h3>Mở thêm Tab máy treo mới</h3>
         <button class="btn-icon-close" id="btnCloseNewTabModal">✕</button>
       </div>
       <div class="modal-body">
@@ -415,8 +433,8 @@
         </div>
 
         <div class="mode-switch-tabs">
-          <button class="mode-tab active" data-newmode="preset">🎮 Chọn từ Kho Game có sẵn</button>
-          <button class="mode-tab" data-newmode="upload">📤 Tải file .JAR mới từ máy lên</button>
+          <button class="mode-tab active" data-newmode="preset">Chọn từ Kho Game có sẵn</button>
+          <button class="mode-tab upload-only" data-newmode="upload">Tải file .JAR mới từ máy lên</button>
         </div>
 
         <!-- Mode A: Select Preset -->
@@ -428,7 +446,7 @@
             </select>
           </div>
           <button class="btn-primary-glow full-width mt-10" id="btnConfirmCreatePresetTab">
-            🚀 Tạo Tab & Chạy Ngay
+            Tạo tab &amp; chạy ngay
           </button>
         </div>
 
@@ -436,12 +454,12 @@
         <div class="newtab-mode-pane" id="newTabPane-upload">
           <input type="file" id="newTabJarInput" accept=".jar" hidden />
           <div class="upload-dropzone" id="newTabDropzone">
-            <div class="dropzone-icon">🚀</div>
+            <div class="dropzone-icon"></div>
             <div class="dropzone-title" id="newTabFileLabel">Bấm để chọn file <strong>.jar</strong> muốn chạy</div>
             <div class="dropzone-sub">Tự động tạo tab mới, chạy game trên VPS và lưu vào Kho Game</div>
           </div>
           <button class="btn-primary-glow full-width mt-10" id="btnConfirmCreateUploadTab">
-            📤 Tải File Lên & Mở Tab Mới
+            Tải file lên &amp; mở tab
           </button>
         </div>
       </div>
@@ -452,7 +470,7 @@
   <div class="modal-backdrop hidden" id="bgModal">
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
-        <h3>🎨 Cá nhân hóa Giao diện & Hình nền</h3>
+        <h3>Cá nhân hóa Giao diện & Hình nền</h3>
         <button class="btn-icon-close" id="btnCloseBgModal">✕</button>
       </div>
       <div class="modal-body">
@@ -477,11 +495,22 @@
           </div>
         </div>
 
+        <div class="studio-section">
+          <label class="toggle-row">
+            <input type="checkbox" id="chkSnow" />
+            <span><strong>Tuyết rơi</strong> — hiệu ứng nhẹ phía sau, không ảnh hưởng màn hình game</span>
+          </label>
+        </div>
+
         <!-- Built-in Creative Wallpapers / Atmosphere Presets -->
         <div class="studio-section">
           <div class="studio-label">2. Chọn Phông nền độc quyền (Đỡ đụng hàng)</div>
           <div class="bg-presets-grid">
-            <button class="bg-preset-card active" data-bg-preset="cyber-jade">
+            <button class="bg-preset-card active" data-bg-preset="winter-night">
+              <div class="bg-preview preview-winter-night"></div>
+              <span>Đêm tuyết</span>
+            </button>
+            <button class="bg-preset-card" data-bg-preset="cyber-jade">
               <div class="bg-preview preview-cyber-jade"></div>
               <span>Lục Bảo Ma Trận</span>
             </button>
@@ -515,7 +544,7 @@
             <input type="text" id="customBgUrlInput" class="input-field" placeholder="Dán link ảnh nền (https://...) vào đây" />
             <button class="btn-emerald" id="btnApplyCustomBgUrl">Áp dụng Link</button>
             <input type="file" id="customBgFileInput" accept="image/*" hidden />
-            <button class="btn-ghost" id="btnPickCustomBgFile">📁 Chọn ảnh từ máy</button>
+            <button class="btn-ghost" id="btnPickCustomBgFile">Chọn ảnh từ máy</button>
             <button class="btn-ghost" id="btnClearCustomBg">Xóa ảnh riêng</button>
           </div>
 
@@ -538,13 +567,13 @@
   <div class="modal-backdrop hidden" id="manageModal">
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
-        <h3>📋 Quản lý toàn bộ Tab Máy Treo</h3>
+        <h3>Quản lý toàn bộ Tab Máy Treo</h3>
         <button class="btn-icon-close" id="btnCloseManageModal">✕</button>
       </div>
       <div class="modal-body">
         <div class="manage-bulk-bar">
-          <button class="btn-emerald" id="btnStartAllSlots">▶ Bật tất cả các tab</button>
-          <button class="btn-ghost" id="btnStopAllSlots">⏹ Tắt tất cả các tab</button>
+          <button class="btn-emerald" id="btnStartAllSlots">Bật tất cả các tab</button>
+          <button class="btn-ghost" id="btnStopAllSlots">Tắt tất cả các tab</button>
         </div>
         <div class="manage-slots-list" id="manageSlotsList">
           <!-- Populated by JS -->
@@ -553,9 +582,116 @@
     </div>
   </div>
 
+  <!-- MODAL 5: Billing — ví, chọn gói, chuyển khoản VietQR -->
+  <div class="modal-backdrop hidden" id="billingModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3>Nạp tiền & Mua gói</h3>
+        <button class="btn-icon-close" id="btnCloseBillingModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="billing-summary">
+          <div>Số dư ví: <strong class="text-emerald" id="billBalance">--</strong></div>
+          <div>Gói hiện tại: <span class="plan-pill" id="billPlan">--</span> <span class="muted-text" id="billExpiry"></span></div>
+        </div>
+
+        <div class="billing-note hidden" id="billDisabled"></div>
+
+        <div class="studio-section">
+          <div class="studio-label">1. Chọn gói muốn mua</div>
+          <div class="billing-products" id="billProducts"></div>
+        </div>
+
+        <div class="studio-section billing-renew">
+          <label for="billAutoRenew">Tự gia hạn từ ví (trước khi hết hạn 30 phút, ví đủ tiền là tự mua tiếp):</label>
+          <select class="select-field" id="billAutoRenew"></select>
+        </div>
+
+        <div class="studio-section hidden" id="billPayBox">
+          <div class="studio-label" id="billPayTitle">2. Chuyển khoản để thanh toán</div>
+          <div class="billing-pay">
+            <img class="billing-qr" id="billQr" alt="Mã VietQR chuyển khoản" />
+            <div class="billing-pay-info">
+              <div class="billing-row"><span>Ngân hàng</span><strong id="billBank">--</strong></div>
+              <div class="billing-row"><span>Số tài khoản</span><strong id="billAccNo">--</strong><button class="q-btn" data-copy="billAccNo">Chép</button></div>
+              <div class="billing-row"><span>Chủ tài khoản</span><strong id="billAccName">--</strong></div>
+              <div class="billing-row"><span>Số tiền</span><strong class="text-emerald" id="billAmount">--</strong><button class="q-btn" data-copy="billAmount">Chép</button></div>
+              <div class="billing-row"><span>Nội dung</span><strong class="billing-code" id="billCode">--</strong><button class="q-btn" data-copy="billCode">Chép</button></div>
+              <div class="billing-hint" id="billHint">
+                Quét mã QR bằng app ngân hàng, giữ nguyên <strong>nội dung chuyển khoản</strong>.
+                Tiền về ví sau khoảng 10–60 giây, gói sẽ được kích hoạt tự động.
+              </div>
+              <button class="btn-ghost hidden" id="billCancelPending">Hủy chọn gói</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-section">
+          <button class="btn-ghost" id="billShowTopup">Nạp tiền vào ví (số tiền tùy ý)</button>
+        </div>
+
+        <div class="studio-section">
+          <div class="studio-label">Lịch sử ví</div>
+          <div class="billing-ledger" id="billLedger"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Account, Plan & Password -->
+  <div class="modal-backdrop hidden" id="accountModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Tài khoản của bạn</h3>
+        <button class="btn-icon-close" id="btnCloseAccountModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="jar-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Tên đăng nhập:</span>
+            <strong id="accUsername">--</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Gói hiện tại:</span>
+            <span class="plan-pill" id="accPlan">--</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Số tab:</span>
+            <strong id="accSlots">--</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Hết hạn:</span>
+            <strong id="accExpires">--</strong>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <form id="changePasswordForm">
+          <div class="field-label">Đổi mật khẩu</div>
+          <div class="form-group">
+            <input type="password" class="input-field" id="pwCurrent" placeholder="Mật khẩu hiện tại" autocomplete="current-password" required />
+          </div>
+          <div class="form-group">
+            <input type="password" class="input-field" id="pwNew" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password" minlength="6" required />
+          </div>
+          <button class="btn-emerald" type="submit">Lưu mật khẩu mới</button>
+        </form>
+
+        <div class="divider-line"></div>
+
+        <div class="manage-bulk-bar">
+          <a class="btn-ghost hidden" id="btnGoAdmin" href="/admin.html">Trang quản trị</a>
+          <button class="btn-ghost" id="btnLogout">⎋ Đăng xuất</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <script src="snow.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
